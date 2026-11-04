@@ -1,6 +1,6 @@
 {
   "name": "Lincoln Band Workbook",
-  "short_name": "Band",
+  "short_name": "Band Workbook",
   "description": "Band scales, exercises and solos with notation and playback for your instrument.",
   "start_url": "./index.html",
   "display": "standalone",
