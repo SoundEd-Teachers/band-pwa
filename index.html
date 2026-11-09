@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Lincoln Band Workbook</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/images/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+  <meta name="theme-color" content="#121212">
+</head>
+<body>
+  <header>
+    <h1>Lincoln Band Workbook</h1>
+    <button id="inst-btn" class="inst-btn">Pick instrument</button>
+  </header>
+
+  <main>
+    <section id="view-list" class="view active">
+      <div class="level-filters" id="filters"></div>
+      <p class="hint" id="hint"></p>
+      <div id="grid" class="grid-container"></div>
+    </section>
+
+    <section id="view-tuner" class="view">
+      <canvas id="confetti-canvas"></canvas>
+      <div class="tn">
+        <button id="tn-inst-btn" class="tn-inst">Notes shown for <b id="tn-inst">Concert pitch</b> ▾</button>
+        <div class="pitch-display-row">
+          <div id="note-name">--</div>
+          <div id="notation-card" class="notation-card"><div id="notationContainer"></div></div>
+        </div>
+        <div id="cents-display">0 cents</div>
+        <div class="visualizer-box">
+          <div id="ears-mask">EARS ONLY</div>
+          <canvas id="tunerCanvas" width="300" height="300"></canvas>
+        </div>
+        <div id="streak-container" class="streak-container"><div id="streak-fill"></div></div>
+
+        <div class="tn-ctl">
+          <div class="tn-row">
+            <button id="toggleSystemBtn" class="btn-start">START</button>
+            <button id="micToggleBtn" disabled><span id="micIcon">🎤</span> <span id="micText">Mic: OFF</span></button>
+          </div>
+          <div class="tn-row tn-row3">
+            <button id="droneToggle" class="active">Drone</button>
+            <button id="strobeToggle" class="active">Strobe</button>
+            <button id="earsToggle">Ears Only</button>
+          </div>
+          <details class="tn-more">
+            <summary>More settings</summary>
+            <h3>Mixer &amp; Levels</h3>
+            <div class="slider-group">
+              <div class="slider-label"><span>Mic Gate (Sensitivity)</span> <span id="gateVal">Normal</span></div>
+              <input type="range" id="gateSlider" min="0.005" max="0.1" step="0.005" value="0.015">
+            </div>
+            <div class="slider-group">
+              <div class="slider-label"><span>Drone Volume</span> <span id="volVal">20%</span></div>
+              <input type="range" id="volSlider" min="0" max="0.5" step="0.05" value="0.2">
+            </div>
+            <h3>Difficulty</h3>
+            <div class="diff-group">
+              <button class="diff-btn selected" data-level="student">Student</button>
+              <button class="diff-btn" data-level="advanced">Adv</button>
+              <button class="diff-btn" data-level="pro">Pro</button>
+            </div>
+            <h3>Display</h3>
+            <div class="tn-row">
+              <button id="toggleNoteName" class="active">Note Names</button>
+              <button id="toggleNotation" class="active">Notation</button>
+            </div>
+            <select id="waveType" aria-label="Drone tone">
+              <option value="triangle">Tone: Rich (Triangle)</option>
+              <option value="sawtooth">Tone: Bright (Saw)</option>
+              <option value="sine">Tone: Pure (Sine)</option>
+            </select>
+            <button id="testAudioBtn">🔊 Test Audio</button>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-view="scales"><span>🎼</span> Scales</button>
+    <button class="nav-item" data-view="exercises"><span>🎶</span> Exercises</button>
+    <button class="nav-item" data-view="tuner"><span>🎚️</span> Tuner</button>
+  </nav>
+
+  <!-- Instrument picker -->
+  <div id="inst-modal" class="modal hidden">
+    <div class="modal-header">
+      <button id="inst-close" class="icon-btn">✕ Close</button>
+      <h2>Your instrument</h2>
+    </div>
+    <div id="inst-grid" class="chip-grid"></div>
+  </div>
+
+  <!-- Practice modal -->
+  <div id="practice-modal" class="modal hidden">
+    <div class="modal-header">
+      <button id="close-modal-btn" class="icon-btn">✕ Back</button>
+      <h2 id="modal-title"></h2>
+      <span id="modal-category" class="badge"></span>
+    </div>
+    <button id="fab-back" class="fab" aria-label="Back">✕</button>
+    <button id="fab-play" class="fab play" aria-label="Play">▶</button>
+    <div id="oops"><strong>Oops! Not here yet.</strong>This one is on the way. Check back soon.</div>
+    <div class="partbar">
+      <select id="part-sel" aria-label="Part"></select>
+      <div id="part-note"></div>
+    </div>
+    <div id="sheet"></div>
+    <div class="tools-container">
+      <div class="metronome-box">
+        <div class="tempo-display">
+          <button id="bpm-down">-</button>
+          <span><span id="bpm-display">80</span> BPM</span>
+          <button id="bpm-up">+</button>
+        </div>
+        <input type="range" id="bpm-slider" min="40" max="200" value="80" aria-label="Tempo">
+        <button id="play" class="primary-btn">▶ Play</button>
+        <div class="opts">
+          <label><input type="checkbox" id="o-notes" checked>Hear notes</label>
+          <label><input type="checkbox" id="o-click" checked>Click</label>
+          <label><input type="checkbox" id="o-count" checked>Count-in</label>
+          <label><input type="checkbox" id="o-rep" checked>Repeats</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => console.error('SW failed', err));
+      });
+    }
+  </script>
+  <script src="assets/vendor/opensheetmusicdisplay.min.js"></script>
+  <script src="catalog.js"></script>
+  <script src="score.js"></script>
+  <script src="player.js"></script>
+  <script src="tuner.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
