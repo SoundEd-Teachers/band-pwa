@@ -1,7 +1,7 @@
 // Two caches: the app shell (small, replaced when you bump SHELL) and MusicXML (large, kept across updates).
 // Both use stale-while-revalidate: students get the cached copy instantly, and a fresh copy is fetched in the
 // background. Netlify answers unchanged files with a tiny "not modified" reply, so this costs almost no bandwidth.
-const SHELL = 'band-shell-v0.5';
+const SHELL = 'band-shell-v1';
 const XML = 'band-xml';
 const ASSETS_TO_CACHE = [
   './', './index.html', './styles.css', './catalog.js', './score.js', './player.js', './tuner.js', './app.js',
